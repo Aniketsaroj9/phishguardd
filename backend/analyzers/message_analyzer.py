@@ -196,12 +196,38 @@ def analyze(content, message_type='SMS'):
     # Get confidence for the predicted class
     confidence = probabilities[prediction]
     
-    # Map prediction to labels
-    classification = 'Scam' if prediction == 1 else 'Safe'
-    
     # Calculate risk score (scam probability * 100)
     scam_probability = probabilities[1]  # Probability of being scam
-    risk_score = round(scam_probability * 100, 1)
+    risk_score = scam_probability * 100
+    
+    # HYBRID SCORING: Boost risk score based on known scam keywords
+    # (Helps catch zero-day phishing that the ML model hasn't seen)
+    text_lower = content.lower()
+    keyword_boost = 0
+    matched_categories = {}
+    
+    for category, keywords in SCAM_INDICATORS.items():
+        matched = [kw for kw in keywords if kw in text_lower]
+        if matched:
+            matched_categories[category] = matched
+            # Boost score: +15 for hitting a category, +5 for each specific word
+            keyword_boost += 15 + (len(matched) * 5)
+            
+    risk_score += keyword_boost
+    risk_score = min(risk_score, 100.0)  # Cap at 100
+    
+    # Recalculate classification based on hybrid score
+    if risk_score >= 50.0:
+        classification = 'Scam'
+        prediction = 1  # Override prediction for explanation generator
+        
+        # Override confidence to match the boosted risk score
+        confidence = risk_score / 100.0
+    else:
+        classification = 'Safe'
+        prediction = 0
+    
+    risk_score = round(risk_score, 1)
     
     # Generate explanations
     reasons = _generate_reasons(content, prediction, confidence)

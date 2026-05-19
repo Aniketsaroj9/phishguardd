@@ -58,6 +58,9 @@ def validate_url(url):
     url = url.strip()
     if len(url) == 0:
         return False, "URL cannot be empty"
+        
+    if ' ' in url:
+        return False, "URL cannot contain spaces. Please enter only the link itself."
     
     if not url.startswith(('http://', 'https://', 'www.')):
         return False, "URL must start with http://, https://, or www."
