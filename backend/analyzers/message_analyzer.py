@@ -22,13 +22,16 @@ SCAM_INDICATORS = {
     'urgency': ['urgent', 'immediately', 'act now', 'hurry', 'expire', 'limited time',
                 'last chance', 'don\'t miss', 'deadline', 'asap', 'right away', 'now', 'action required'],
     'financial': ['win', 'won', 'prize', 'cash', 'money', 'bank', 'credit', 'upi', 'wallet', 'payment',
-                  'loan', 'investment', 'free', 'offer', 'discount', 'jackpot', 'refund'],
+                  'loan', 'investment', 'free', 'offer', 'discount', 'jackpot', 'refund', 'fee', 'rs.', 'rupees', 'earn'],
     'action': ['click', 'call', 'reply', 'text', 'send', 'visit', 'confirm', 'reactivate', 're-activate',
-               'verify', 'verification', 'update', 'claim', 'subscribe', 'register', 'link'],
+               'verify', 'verification', 'update', 'claim', 'subscribe', 'register', 'registration', 'link', 'apply'],
     'threat': ['suspend', 'block', 'unauthorized', 'locked', 'compromised', 'disabled', 'failure', 'restrict',
                'unusual activity', 'security alert', 'violation', 'penalty', 'closure'],
     'identity': ['password', 'otp', 'pin', 'ssn', 'account', 'cvv', 'kyc', 'pan', 'aadhar',
-                 'social security', 'credentials', 'login', 'verification code', 'identity']
+                 'social security', 'credentials', 'login', 'verification code', 'identity'],
+    'job_scam': ['resume', 'salary', 'shortlisted', 'remote job', 'work from home', 'wfh', 'part-time',
+                 'hiring', 'recruitment', 'interview'],
+    'lure': ['congratulations', 'selected', 'lucky', 'winner', 'dear customer', 'exclusive']
 }
 
 
@@ -137,6 +140,14 @@ def _generate_reasons(text, classification, confidence):
     if 'identity' in matched_categories:
         keywords_str = ', '.join(matched_categories['identity'][:3])
         reasons.append(f"Requests sensitive personal information: {keywords_str}")
+        
+    if 'job_scam' in matched_categories:
+        keywords_str = ', '.join(matched_categories['job_scam'][:3])
+        reasons.append(f"Contains common employment scam keywords: {keywords_str}")
+        
+    if 'lure' in matched_categories:
+        keywords_str = ', '.join(matched_categories['lure'][:3])
+        reasons.append(f"Uses psychological lures: {keywords_str}")
     
     # If ML flagged it but no keyword matches, give generic reason
     if not reasons:
