@@ -3,13 +3,258 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhishGuard - AI-Powered Phishing Detection</title>
-    <meta name="description" content="Detect phishing URLs and scam messages with AI-powered analysis and explainable threat assessment.">
+    <title>PhishGuard - AI-Powered Threat Detection</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>PhishGuard</h1>
-    <p>Frontend will be implemented in Phase 5.</p>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary-custom shadow-sm sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#" data-target="dashboard-section">
+                <i class="fa-solid fa-shield-halved me-2"></i>PhishGuard
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" data-target="dashboard-section"><i class="fa-solid fa-chart-line me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-target="url-scan-section"><i class="fa-solid fa-link me-1"></i> URL Scanner</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-target="message-scan-section"><i class="fa-solid fa-comment-sms me-1"></i> Message Scanner</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" data-target="history-section"><i class="fa-solid fa-clock-rotate-left me-1"></i> History</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container my-5">
+        
+        <!-- Dashboard Section -->
+        <section id="dashboard-section" class="view-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fa-solid fa-chart-line text-primary me-2"></i> System Dashboard</h2>
+                <button class="btn btn-outline-primary btn-sm" id="refresh-dashboard"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+            </div>
+            
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="card metric-card total-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-muted fw-bold">Total Scans</h5>
+                            <h1 class="display-4 fw-bold text-dark mt-3" id="metric-total">-</h1>
+                            <div class="metric-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card metric-card safe-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-success fw-bold">Safe</h5>
+                            <h1 class="display-4 fw-bold text-dark mt-3" id="metric-safe">-</h1>
+                            <div class="metric-icon text-success"><i class="fa-solid fa-check-circle"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card metric-card suspicious-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-warning fw-bold">Suspicious</h5>
+                            <h1 class="display-4 fw-bold text-dark mt-3" id="metric-suspicious">-</h1>
+                            <div class="metric-icon text-warning"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card metric-card phishing-card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <h5 class="card-title text-danger fw-bold">Phishing / Scam</h5>
+                            <h1 class="display-4 fw-bold text-dark mt-3" id="metric-phishing-scam">-</h1>
+                            <div class="metric-icon text-danger"><i class="fa-solid fa-radiation"></i></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-5">
+                <div class="col-12 text-center">
+                    <p class="text-muted lead">Choose a scanner above to begin analyzing threats.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- URL Scanner Section -->
+        <section id="url-scan-section" class="view-section d-none">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="card-title mb-3"><i class="fa-solid fa-link text-primary me-2"></i> URL Scanner</h3>
+                            <p class="text-muted mb-4">Analyze a suspicious URL for phishing indicators using heuristic rules.</p>
+                            
+                            <form id="url-scan-form">
+                                <div class="mb-3">
+                                    <div class="input-group input-group-lg">
+                                        <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-globe text-muted"></i></span>
+                                        <input type="url" class="form-control border-start-0 ps-0" id="url-input" placeholder="https://example.com/login" required>
+                                        <button class="btn btn-primary px-4 fw-bold" type="submit" id="url-scan-btn">
+                                            <span>Scan URL</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- URL Result Area -->
+                    <div id="url-loading" class="text-center d-none my-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 text-muted fw-bold">Analyzing URL parameters and heuristics...</p>
+                    </div>
+
+                    <div id="url-result-container" class="d-none">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Message Scanner Section -->
+        <section id="message-scan-section" class="view-section d-none">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body p-4">
+                            <h3 class="card-title mb-3"><i class="fa-solid fa-comment-sms text-primary me-2"></i> Message Scanner</h3>
+                            <p class="text-muted mb-4">Analyze SMS or Email text for scam indicators using AI classification.</p>
+                            
+                            <form id="message-scan-form">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Message Source</label>
+                                    <div class="d-flex gap-3 mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="messageType" id="typeSms" value="SMS" checked>
+                                            <label class="form-check-label" for="typeSms"><i class="fa-solid fa-mobile-screen me-1"></i> SMS</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="messageType" id="typeEmail" value="Email">
+                                            <label class="form-check-label" for="typeEmail"><i class="fa-solid fa-envelope me-1"></i> Email</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <textarea class="form-control" id="message-input" rows="4" placeholder="Paste the suspicious message text here..." required></textarea>
+                                </div>
+                                <button class="btn btn-primary w-100 fw-bold py-2" type="submit" id="message-scan-btn">
+                                    <i class="fa-solid fa-microchip me-1"></i> Scan Message
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Message Result Area -->
+                    <div id="message-loading" class="text-center d-none my-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-3 text-muted fw-bold">Running ML classification model...</p>
+                    </div>
+
+                    <div id="message-result-container" class="d-none">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- History Section -->
+        <section id="history-section" class="view-section d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i> Scan History</h2>
+                <button class="btn btn-outline-primary btn-sm" id="refresh-history"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+            </div>
+
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="ps-4">Type</th>
+                                    <th>Content Preview</th>
+                                    <th>Threat Level</th>
+                                    <th>Risk Score</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body">
+                                <!-- Populated by JS -->
+                                <tr><td colspan="5" class="text-center py-4 text-muted">Loading history...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Templates (Hidden) -->
+    <template id="result-card-template">
+        <div class="card result-card border-0 shadow mb-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 pb-0 px-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0 fw-bold">Analysis Result</h4>
+                    <span class="badge threat-badge rounded-pill fs-6 px-3 py-2"></span>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                <div class="mb-4 pb-3 border-bottom content-preview-container">
+                    <h6 class="text-muted fw-bold mb-2">Analyzed Content:</h6>
+                    <p class="mb-0 content-preview text-break font-monospace bg-light p-3 rounded"></p>
+                </div>
+                
+                <div class="row align-items-center mb-4">
+                    <div class="col-md-4 text-center border-end">
+                        <div class="risk-score-circle mx-auto d-flex align-items-center justify-content-center">
+                            <h2 class="mb-0 fw-bold risk-score-text"></h2>
+                        </div>
+                        <p class="text-muted mt-2 mb-0 fw-bold">Risk Score</p>
+                    </div>
+                    <div class="col-md-8 ps-md-4 mt-4 mt-md-0">
+                        <h6 class="fw-bold mb-3"><i class="fa-solid fa-clipboard-list me-2"></i> Detection Explanations:</h6>
+                        <ul class="list-group list-group-flush reasons-list">
+                            <!-- Populated by JS -->
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JS -->
     <script src="js/app.js"></script>
 </body>
 </html>

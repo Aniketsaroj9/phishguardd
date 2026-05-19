@@ -1,2 +1,204 @@
-/* PhishGuard - Custom Styles */
-/* Will be implemented in Phase 5 */
+/* PhishGuard - Premium Custom Styles */
+
+:root {
+    --primary: #1A365D;
+    --primary-light: #2B6CB0;
+    --accent: #3182CE;
+    --safe: #38A169;
+    --safe-bg: #F0FFF4;
+    --warning: #DD6B20;
+    --warning-bg: #FFFAF0;
+    --danger: #E53E3E;
+    --danger-bg: #FFF5F5;
+    --bg-light: #F7FAFC;
+    --text-main: #2D3748;
+    --text-muted: #718096;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main);
+}
+
+.bg-primary-custom {
+    background-color: var(--primary) !important;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+}
+
+/* Navbar */
+.navbar {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    letter-spacing: -0.5px;
+}
+
+.nav-link {
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-radius: 6px;
+    padding: 0.5rem 1rem !important;
+    margin: 0 0.2rem;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.2);
+    font-weight: 600;
+}
+
+/* Dashboard Cards */
+.metric-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+.metric-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
+}
+
+.metric-icon {
+    position: absolute;
+    bottom: -15px;
+    right: -10px;
+    font-size: 6rem;
+    opacity: 0.05;
+    transform: rotate(-15deg);
+}
+
+/* Inputs & Forms */
+.form-control {
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid #E2E8F0;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.2);
+    border-color: var(--accent);
+}
+
+.input-group-text {
+    border: 1px solid #E2E8F0;
+    background-color: white;
+}
+
+.btn-primary {
+    background-color: var(--primary-light);
+    border-color: var(--primary-light);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+/* Result Cards & Threat Levels */
+.result-card {
+    border-radius: 12px;
+    border-top: 5px solid transparent !important;
+}
+
+.threat-safe {
+    border-top-color: var(--safe) !important;
+}
+
+.threat-safe .threat-badge {
+    background-color: var(--safe);
+    color: white;
+}
+
+.threat-safe .risk-score-circle {
+    border-color: var(--safe);
+    color: var(--safe);
+}
+
+.threat-suspicious {
+    border-top-color: var(--warning) !important;
+}
+
+.threat-suspicious .threat-badge {
+    background-color: var(--warning);
+    color: white;
+}
+
+.threat-suspicious .risk-score-circle {
+    border-color: var(--warning);
+    color: var(--warning);
+}
+
+.threat-scam, .threat-phishing {
+    border-top-color: var(--danger) !important;
+}
+
+.threat-scam .threat-badge, .threat-phishing .threat-badge {
+    background-color: var(--danger);
+    color: white;
+}
+
+.threat-scam .risk-score-circle, .threat-phishing .risk-score-circle {
+    border-color: var(--danger);
+    color: var(--danger);
+}
+
+/* Risk Score Circle */
+.risk-score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 8px solid #E2E8F0;
+    transition: border-color 0.5s ease;
+}
+
+.risk-score-text {
+    font-size: 2.5rem;
+    letter-spacing: -1px;
+}
+
+/* History Table */
+.table th {
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.badge-soft-safe { background-color: var(--safe-bg); color: var(--safe); border: 1px solid var(--safe); }
+.badge-soft-suspicious { background-color: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning); }
+.badge-soft-danger { background-color: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger); }
+
+/* Utilities */
+.content-preview {
+    max-height: 150px;
+    overflow-y: auto;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    border: 1px solid #E2E8F0;
+}
+
+.list-group-item {
+    border-color: #EDF2F7;
+    padding: 1rem 0;
+}
+
+.list-group-item i {
+    color: var(--text-muted);
+}
