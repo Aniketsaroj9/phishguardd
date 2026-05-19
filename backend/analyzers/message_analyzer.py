@@ -34,6 +34,12 @@ SCAM_INDICATORS = {
     'lure': ['congratulations', 'selected', 'lucky', 'winner', 'dear customer', 'exclusive']
 }
 
+# Safe indicator keywords for transactional messages
+SAFE_INDICATORS = [
+    'do not share', 'never share', 'will never ask', 'don\'t share', 
+    'secret code', 'confidential'
+]
+
 
 # ========================
 # Model Loading
@@ -227,8 +233,13 @@ def analyze(content, message_type='SMS'):
             # Boost score: +15 for hitting a category, +5 for each specific word
             keyword_boost += 15 + (len(matched) * 5)
             
+    # Check for safe indicators (transactional OTPs, etc.)
+    for safe_phrase in SAFE_INDICATORS:
+        if safe_phrase in text_lower:
+            keyword_boost -= 30  # Heavy penalty to risk score for legitimate transactional text
+            
     risk_score += keyword_boost
-    risk_score = min(risk_score, 100.0)  # Cap at 100
+    risk_score = max(0.0, min(risk_score, 100.0))  # Cap between 0 and 100
     
     # Recalculate classification based on hybrid score
     if risk_score >= 60.0:
