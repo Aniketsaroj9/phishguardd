@@ -28,3 +28,7 @@ nltk_data/
 
 # Environment
 .env
+
+# Dataset artifacts
+backend/ml/dataset/*.zip
+backend/ml/dataset/readme
