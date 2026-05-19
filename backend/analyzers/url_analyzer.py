@@ -130,9 +130,9 @@ def analyze(url):
         score += 15
         reasons.append("Uses insecure HTTP protocol instead of HTTPS")
     
-    # Rule 2: IP-based URL (weight: 25)
+    # Rule 2: IP-based URL (weight: 50)
     if features['has_ip']:
-        score += 25
+        score += 50
         reasons.append("Uses IP address instead of domain name — common phishing technique")
     
     # Rule 3: URL length (weight: 10-15)
@@ -148,14 +148,14 @@ def analyze(url):
         score += 10
         reasons.append(f"Excessive dots in URL ({features['dot_count']}) — may indicate subdomain abuse")
     
-    # Rule 5: Hyphens in domain (weight: 10)
-    if features['hyphen_count'] > 2:
-        score += 10
+    # Rule 5: Hyphens in domain (weight: 15)
+    if features['hyphen_count'] >= 2:
+        score += 15
         reasons.append(f"Multiple hyphens ({features['hyphen_count']}) — common in spoofed domains")
     
-    # Rule 6: @ symbol (weight: 20)
+    # Rule 6: @ symbol (weight: 30)
     if features['at_sign']:
-        score += 20
+        score += 30
         reasons.append("Contains @ symbol — can be used to redirect to a different destination")
     
     # Rule 7: Double slash redirect (weight: 15)
@@ -163,21 +163,21 @@ def analyze(url):
         score += 15
         reasons.append("Contains multiple double slashes — may redirect to a malicious site")
     
-    # Rule 8: Suspicious keywords (weight: 5 each, max 20)
-    keyword_score = min(len(features['suspicious_keywords']) * 5, 20)
+    # Rule 8: Suspicious keywords (weight: 10 each, max 30)
+    keyword_score = min(len(features['suspicious_keywords']) * 10, 30)
     if keyword_score > 0:
         keywords_str = ', '.join(features['suspicious_keywords'][:4])
         score += keyword_score
         reasons.append(f"Contains suspicious keywords: {keywords_str}")
     
-    # Rule 9: Suspicious TLD (weight: 15)
+    # Rule 9: Suspicious TLD (weight: 25)
     if features['suspicious_tld']:
-        score += 15
+        score += 25
         reasons.append(f"Uses a suspicious top-level domain commonly associated with phishing")
     
-    # Rule 10: URL shortener (weight: 10)
+    # Rule 10: URL shortener (weight: 20)
     if features['is_shortener']:
-        score += 10
+        score += 20
         reasons.append("Uses a URL shortener — hides the true destination")
     
     # Rule 11: Subdomain abuse (weight: 10)
@@ -194,9 +194,10 @@ def analyze(url):
     score = min(score, 100)
     
     # Classify based on score thresholds
-    if score < 30:
+    # Classify based on score thresholds
+    if score < 25:
         classification = 'Safe'
-    elif score <= 70:
+    elif score <= 60:
         classification = 'Suspicious'
     else:
         classification = 'Phishing'
