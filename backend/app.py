@@ -14,7 +14,8 @@ from flask import Flask, request
 from flask_cors import CORS
 from config import FLASK_CONFIG, CORS_ORIGINS
 from models.database import Database
-from utils.helpers import success_response, error_response
+from analyzers import url_analyzer, message_analyzer
+from utils.helpers import success_response, error_response, validate_url, validate_message
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -41,6 +42,137 @@ def health_check():
 
 
 # ========================
+# URL Analysis
+# ========================
+
+@app.route('/api/analyze-url', methods=['POST'])
+def analyze_url():
+    """Analyze a suspicious URL for phishing indicators."""
+    data = request.get_json()
+    
+    if not data:
+        return error_response('Request body must be JSON', 400)
+    
+    url = data.get('url', '').strip()
+    
+    # Validate
+    is_valid, err_msg = validate_url(url)
+    if not is_valid:
+        return error_response(err_msg, 400)
+    
+    # Analyze
+    result = url_analyzer.analyze(url)
+    
+    # Save to database
+    scan_id = db.save_scan(
+        scan_type='URL',
+        content=url,
+        prediction=result['classification'],
+        risk_score=result['risk_score'],
+        threat_level=result['threat_level'],
+        reasons=result['reasons']
+    )
+    
+    result['scan_id'] = scan_id
+    
+    # Remove internal features from response
+    result.pop('features', None)
+    
+    return success_response(result)
+
+
+# ========================
+# Message Analysis
+# ========================
+
+@app.route('/api/analyze-message', methods=['POST'])
+def analyze_message():
+    """Analyze a suspicious SMS/email message for scam indicators."""
+    data = request.get_json()
+    
+    if not data:
+        return error_response('Request body must be JSON', 400)
+    
+    content = data.get('content', '').strip()
+    message_type = data.get('message_type', 'SMS')
+    
+    # Validate
+    is_valid, err_msg = validate_message(content, message_type)
+    if not is_valid:
+        return error_response(err_msg, 400)
+    
+    # Analyze
+    result = message_analyzer.analyze(content, message_type)
+    
+    # Check for model error
+    if result.get('error'):
+        return error_response(result['reasons'][0], 503)
+    
+    # Save to database
+    scan_id = db.save_scan(
+        scan_type=message_type,
+        content=content,
+        prediction=result['classification'],
+        risk_score=result['risk_score'],
+        threat_level=result['threat_level'],
+        reasons=result['reasons']
+    )
+    
+    result['scan_id'] = scan_id
+    
+    return success_response(result)
+
+
+# ========================
+# Scan History
+# ========================
+
+@app.route('/api/history', methods=['GET'])
+def get_history():
+    """Get paginated scan history."""
+    try:
+        limit = int(request.args.get('limit', 50))
+        offset = int(request.args.get('offset', 0))
+    except ValueError:
+        return error_response('limit and offset must be integers', 400)
+    
+    # Clamp values
+    limit = min(max(limit, 1), 100)
+    offset = max(offset, 0)
+    
+    records = db.get_history(limit=limit, offset=offset)
+    
+    return success_response({
+        'records': records,
+        'limit': limit,
+        'offset': offset,
+        'count': len(records)
+    })
+
+
+@app.route('/api/history/<int:scan_id>', methods=['GET'])
+def get_scan_detail(scan_id):
+    """Get detailed scan record with threat reasons."""
+    scan = db.get_scan(scan_id)
+    
+    if not scan:
+        return error_response(f'Scan record {scan_id} not found', 404)
+    
+    return success_response(scan)
+
+
+# ========================
+# Dashboard Metrics
+# ========================
+
+@app.route('/api/dashboard-metrics', methods=['GET'])
+def get_dashboard_metrics():
+    """Get dashboard summary metrics."""
+    metrics = db.get_dashboard_metrics()
+    return success_response(metrics)
+
+
+# ========================
 # Error Handlers
 # ========================
 
@@ -60,52 +192,6 @@ def method_not_allowed(error):
 def internal_error(error):
     """Handle 500 errors with JSON response."""
     return error_response('Internal server error', 500)
-
-
-# ========================
-# URL Analysis (Phase 3)
-# ========================
-
-@app.route('/api/analyze-url', methods=['POST'])
-def analyze_url():
-    """Analyze a suspicious URL for phishing indicators."""
-    return error_response('URL analysis not yet implemented', 501)
-
-
-# ========================
-# Message Analysis (Phase 4)
-# ========================
-
-@app.route('/api/analyze-message', methods=['POST'])
-def analyze_message():
-    """Analyze a suspicious SMS/email message for scam indicators."""
-    return error_response('Message analysis not yet implemented', 501)
-
-
-# ========================
-# Scan History (Phase 4)
-# ========================
-
-@app.route('/api/history', methods=['GET'])
-def get_history():
-    """Get paginated scan history."""
-    return error_response('History not yet implemented', 501)
-
-
-@app.route('/api/history/<int:scan_id>', methods=['GET'])
-def get_scan_detail(scan_id):
-    """Get detailed scan record with threat reasons."""
-    return error_response('Scan detail not yet implemented', 501)
-
-
-# ========================
-# Dashboard Metrics (Phase 4)
-# ========================
-
-@app.route('/api/dashboard-metrics', methods=['GET'])
-def get_dashboard_metrics():
-    """Get dashboard summary metrics."""
-    return error_response('Dashboard metrics not yet implemented', 501)
 
 
 # ========================
