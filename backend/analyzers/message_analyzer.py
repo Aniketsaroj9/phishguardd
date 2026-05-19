@@ -20,15 +20,15 @@ VECTORIZER_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'ml',
 # Scam indicator keywords for explanation generation
 SCAM_INDICATORS = {
     'urgency': ['urgent', 'immediately', 'act now', 'hurry', 'expire', 'limited time',
-                'last chance', 'don\'t miss', 'deadline', 'asap', 'right away'],
-    'financial': ['win', 'won', 'prize', 'cash', 'money', 'bank', 'credit',
-                  'loan', 'investment', 'free', 'offer', 'discount', 'jackpot'],
-    'action': ['click', 'call', 'reply', 'text', 'send', 'visit', 'confirm',
-               'verify', 'update', 'claim', 'subscribe', 'register'],
-    'threat': ['suspend', 'block', 'unauthorized', 'locked', 'compromised',
-               'unusual activity', 'security alert', 'violation', 'penalty'],
-    'identity': ['password', 'otp', 'pin', 'ssn', 'account number', 'cvv',
-                 'social security', 'credentials', 'login', 'verification code']
+                'last chance', 'don\'t miss', 'deadline', 'asap', 'right away', 'now', 'action required'],
+    'financial': ['win', 'won', 'prize', 'cash', 'money', 'bank', 'credit', 'upi', 'wallet', 'payment',
+                  'loan', 'investment', 'free', 'offer', 'discount', 'jackpot', 'refund'],
+    'action': ['click', 'call', 'reply', 'text', 'send', 'visit', 'confirm', 'reactivate', 're-activate',
+               'verify', 'verification', 'update', 'claim', 'subscribe', 'register', 'link'],
+    'threat': ['suspend', 'block', 'unauthorized', 'locked', 'compromised', 'disabled', 'failure', 'restrict',
+               'unusual activity', 'security alert', 'violation', 'penalty', 'closure'],
+    'identity': ['password', 'otp', 'pin', 'ssn', 'account', 'cvv', 'kyc', 'pan', 'aadhar',
+                 'social security', 'credentials', 'login', 'verification code', 'identity']
 }
 
 
@@ -90,13 +90,13 @@ def preprocess_text(text):
 # Explanation Generation
 # ========================
 
-def _generate_reasons(text, prediction, confidence):
+def _generate_reasons(text, classification, confidence):
     """Generate human-readable explanations for the classification.
     
     Args:
         text: Original message text (lowercase)
-        prediction: 0 (Safe) or 1 (Scam)
-        confidence: Prediction probability
+        classification: 'Safe', 'Suspicious', or 'Scam'
+        confidence: Prediction/Risk score equivalent
     
     Returns:
         list: Human-readable reason strings
@@ -104,18 +104,18 @@ def _generate_reasons(text, prediction, confidence):
     reasons = []
     text_lower = text.lower()
     
-    if prediction == 0:  # Safe
-        reasons.append("No significant scam indicators detected in the message")
-        if confidence > 0.9:
-            reasons.append("High confidence in safe classification")
-        return reasons
-    
-    # Scam detected — find which indicator categories match
+    # Scam or Suspicious detected — find which indicator categories match
     matched_categories = {}
     for category, keywords in SCAM_INDICATORS.items():
         matched = [kw for kw in keywords if kw in text_lower]
         if matched:
             matched_categories[category] = matched
+            
+    if classification == 'Safe' and not matched_categories:  # Safe and no keywords
+        reasons.append("No significant scam indicators detected in the message")
+        if confidence > 0.9:
+            reasons.append("High confidence in safe classification")
+        return reasons
     
     # Generate category-specific reasons
     if 'urgency' in matched_categories:
@@ -143,10 +143,13 @@ def _generate_reasons(text, prediction, confidence):
         reasons.append("Message pattern matches known scam templates")
     
     # Add confidence note
-    if confidence > 0.9:
-        reasons.append(f"High confidence scam detection ({confidence*100:.0f}%)")
-    elif confidence > 0.7:
-        reasons.append(f"Moderate confidence scam detection ({confidence*100:.0f}%)")
+    if classification == 'Scam':
+        if confidence > 0.9:
+            reasons.append(f"High confidence scam detection ({confidence*100:.0f}%)")
+        elif confidence > 0.6:
+            reasons.append(f"Moderate confidence scam detection ({confidence*100:.0f}%)")
+    elif classification == 'Suspicious':
+        reasons.append(f"Message exhibits suspicious patterns ({confidence*100:.0f}% risk)")
     
     return reasons
 
@@ -217,11 +220,13 @@ def analyze(content, message_type='SMS'):
     risk_score = min(risk_score, 100.0)  # Cap at 100
     
     # Recalculate classification based on hybrid score
-    if risk_score >= 50.0:
+    if risk_score >= 60.0:
         classification = 'Scam'
         prediction = 1  # Override prediction for explanation generator
-        
-        # Override confidence to match the boosted risk score
+        confidence = risk_score / 100.0
+    elif risk_score >= 35.0:
+        classification = 'Suspicious'
+        prediction = 1 # Treat as flagged for explanation generation
         confidence = risk_score / 100.0
     else:
         classification = 'Safe'
@@ -230,7 +235,7 @@ def analyze(content, message_type='SMS'):
     risk_score = round(risk_score, 1)
     
     # Generate explanations
-    reasons = _generate_reasons(content, prediction, confidence)
+    reasons = _generate_reasons(content, classification, confidence)
     
     return {
         'content': content[:200],
