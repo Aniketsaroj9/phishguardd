@@ -25,6 +25,7 @@ class Database:
         """
         return mysql.connector.connect(
             host=DB_CONFIG['host'],
+            port=DB_CONFIG['port'],
             user=DB_CONFIG['user'],
             password=DB_CONFIG['password'],
             database=DB_CONFIG['database'],
@@ -42,6 +43,7 @@ class Database:
             # Step 1: Connect without database to create it
             conn = mysql.connector.connect(
                 host=DB_CONFIG['host'],
+                port=DB_CONFIG['port'],
                 user=DB_CONFIG['user'],
                 password=DB_CONFIG['password']
             )

@@ -2,7 +2,9 @@
  * PhishGuard - Frontend Logic
  */
 
-const API_BASE = 'http://localhost:5000/api';
+// API base URL: set window.PHISHGUARD_API_BASE in config.js (see config.example.js)
+// for production deploys. Falls back to localhost for local development.
+const API_BASE = window.PHISHGUARD_API_BASE || 'http://localhost:5000/api';
 
 // DOM Elements
 const sections = {
